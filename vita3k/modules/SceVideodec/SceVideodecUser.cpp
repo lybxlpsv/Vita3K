@@ -286,24 +286,7 @@ EXPORT(int, sceAvcdecDecodeStop, SceAvcdecCtrl *decoder, SceAvcdecArrayPicture *
     if (!decoder_info)
         return RET_ERROR(SCE_AVCDEC_ERROR_INVALID_PARAM);
 
-    if (!decoder_info->is_stopped) {
-        SceAvcdecPicture *pPicture = picture->pPicture.get(emuenv.mem)[0].get(emuenv.mem);
-        uint8_t *output = pPicture->frame.pPicture[0].cast<uint8_t>().get(emuenv.mem);
-
-        // the ps vita expects us to be able to return one frame, however ffmpeg does not allow it,so return a black frame instead
-        DecoderSize size;
-        size.width = decoder_info->get(DecoderQuery::WIDTH);
-        size.height = decoder_info->get(DecoderQuery::HEIGHT);
-        memset(output, 0, H264DecoderState::buffer_size(size));
-        // we get the values from the last frame, maybe we should slightly increase the pts value?
-        decoder_info->get_res(pPicture->frame.frameWidth, pPicture->frame.frameHeight);
-        decoder_info->get_res(pPicture->frame.horizontalSize, pPicture->frame.verticalSize);
-        decoder_info->get_pts(pPicture->info.pts.upper, pPicture->info.pts.lower);
-
-        picture->numOfOutput = 1;
-    } else {
-        picture->numOfOutput = 0;
-    }
+    picture->numOfOutput = 0;
     decoder_info->is_stopped = true;
 
     return 0;
